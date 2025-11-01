@@ -1,20 +1,14 @@
-% Amphibious Wheel-Propeller - STRESS DISTRIBUTION (NO TOOLBOX DEPENDENCY)
 clear; clc; close all;
-
-%% GEOMETRY SPECIFICATIONS
 D_max = 0.180;
 D_with_spikes = 0.184;
 D_rotating_region = 0.190;
 D_min = 0.158;
 D_hub = 0.039;
-
 R_max = D_max / 2;
 R_with_spikes = D_with_spikes / 2;
 R_rotating = D_rotating_region / 2;
 R_min = D_min / 2;
 R_hub = D_hub / 2;
-
-%% OPERATING CONDITIONS
 omega_rpm = 350;
 omega = omega_rpm * 2*pi/60;
 v_water = 1.0;
@@ -35,14 +29,11 @@ fprintf('Hub Diameter: %.1f mm\n', D_hub*1000);
 fprintf('Rotation: %d RPM (%.2f rad/s)\n', omega_rpm, omega);
 fprintf('Tip Speed: %.3f m/s\n', tip_speed);
 fprintf('\n');
-
-%% HYDROFOIL DESIGN
 n_spokes = 6;
 hydrofoil_type = 'NACA 0015';
 thickness_ratio = 0.15;
 n_sections = 30;
 r_sections = linspace(R_hub, R_max, n_sections);
-
 chord_hub = 0.040;
 chord_tip = 0.025;
 chord = linspace(chord_hub, chord_tip, n_sections);
@@ -61,28 +52,20 @@ fprintf('Profile: %s\n', hydrofoil_type);
 fprintf('Spokes: %d\n', n_spokes);
 fprintf('Sections per spoke: %d\n', n_sections);
 fprintf('\n');
-
-%% MATERIAL PROPERTIES
 rho_material = 1140;
 E = 3.5e9;
 sigma_yield = 85e6;
 material_name = 'CF-Nylon';
 safety_factor_target = 2.5;
-
-%% FLUID PROPERTIES
 rho_water = 1000;
 nu = 1e-6;
 g = 9.81;
-
-%% SIMULATION SETUP
 t_end = 1.0;
 dt = dt_cfd;
 t = 0:dt:t_end;
 n_steps = length(t);
 
 fprintf('Running simulation...\n');
-
-%% MASS CALCULATION
 mass_per_spoke = 0;
 for i = 1:n_sections-1
     dr = r_sections(i+1) - r_sections(i);
@@ -95,7 +78,6 @@ end
 total_spoke_mass = mass_per_spoke;
 total_wheel_mass = n_spokes * total_spoke_mass + 0.080;
 
-%% PREALLOCATE ARRAYS
 theta = zeros(n_steps, n_spokes);
 F_thrust = zeros(n_steps, n_spokes, n_sections);
 F_drag = zeros(n_steps, n_spokes, n_sections);
@@ -109,7 +91,6 @@ stress_bending = zeros(n_spokes, n_sections);
 stress_total = zeros(n_spokes, n_sections);
 safety_factor = zeros(n_spokes, n_sections);
 
-%% HYDRODYNAMIC SIMULATION
 for i = 1:n_steps
     for j = 1:n_spokes
         theta(i,j) = omega * t(i) + (j-1) * 2*pi/n_spokes;
@@ -552,4 +533,5 @@ contour(R_grid, Spoke_grid, stress_matrix, [sigma_yield/1e6, sigma_yield/1e6], .
 grid on;
 
 fprintf('\n✅ Stress visualization complete!\n');
+
 fprintf('Generated 7 detailed stress distribution figures\n');
